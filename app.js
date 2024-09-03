@@ -44,9 +44,12 @@ app.use(cors());
 app.use(xss());
 
 //
-app.get("/", (req, res) => {
-    res.send("Jobs API");
-});
+// app.get("/", (req, res) => {
+//     res.send("Jobs API");
+// });
+
+// Week12
+app.use(express.static("public"));
 
 // routes
 app.use("/api/v1/auth", authRouter);

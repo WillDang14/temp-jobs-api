@@ -42,7 +42,12 @@ const getJob = async (req, res) => {
 };
 
 const createJob = async (req, res) => {
+    // console.log(req.body);
+    // console.log(req.user);
+
     req.body.createdBy = req.user.userId;
+
+    // console.log(req.body);
 
     const job = await Job.create(req.body);
 
@@ -60,11 +65,23 @@ const updateJob = async (req, res) => {
         throw new BadRequestError("Company or Position can not be empty!");
     }
 
+    // Chú ý: cái này chỉ cần match ID là có thể update
+    // ==>> tức là khác userId vẫn có thể update job của userId khác
     const job = await Job.findByIdAndUpdate(
         { _id: jobId, createdBy: userId }, // find
         req.body, // update with this data
         { new: true, runValidators: true } // run validator
     );
+
+    // Chú ý: cái này phải match ID và userId thì mới update
+    // ==>> tức là nếu khác userId thì không thể update job của userId khác
+    // const job = await Job.findOneAndUpdate(
+    //     { _id: jobId, createdBy: userId }, // find
+    //     req.body, // update with this data
+    //     { new: true, runValidators: true } // run validator
+    // );
+
+    // console.log(job);
 
     if (!job) {
         throw new NotFoundError(`No job with id ${jobId}`);
@@ -79,15 +96,24 @@ const deleteJob = async (req, res) => {
         params: { id: jobId },
     } = req;
 
-    const job = await Job.findByIdAndDelete({ _id: jobId, createdBy: userId });
+    const job = await Job.findByIdAndDelete({
+        _id: jobId,
+        createdBy: userId,
+    });
 
     if (!job) {
         throw new NotFoundError(`No job with id ${jobId}`);
     }
 
-    res.status(StatusCodes.OK).send(
-        `Job \"${jobId}\" has successfully deleted!`
-    );
+    //
+    // res.status(StatusCodes.OK).send(
+    //     `Job \"${jobId}\" has successfully deleted!`
+    // );
+
+    // Sửa theo bài học week12
+    res.status(StatusCodes.OK).json({
+        msg: "The entry was deleted successfully!",
+    });
 };
 ///////////////////////////////////////////////
 module.exports = {

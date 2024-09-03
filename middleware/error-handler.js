@@ -5,6 +5,8 @@ const { StatusCodes } = require("http-status-codes");
 //////////////////////////////////////////////////////
 const errorHandlerMiddleware = (err, req, res, next) => {
     // console.log(err);
+    // console.log(err.value);
+    // console.log(typeof err.value);
 
     let customError = {
         // set default, nếu có err thì dùng statusCode của err
@@ -40,7 +42,23 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     }
 
     if (err.name === "CastError") {
-        customError.msg = `No item found with id: ${err.value}`;
+        // console.log(typeof err.value);
+        // console.log(err.value);
+
+        // Cách 1
+        // if (typeof err.value === "string") {
+        //     customError.msg = `No item found with id: ${err.value}`;
+        // } else if (typeof err.value === "object") {
+        //     customError.msg = `No item found with id: ${err.value._id}`;
+        // }
+
+        // customError.msg = `No item found with id: ${err.value}`;
+
+        // Cách 2:
+        customError.msg =
+            typeof err.value === "string"
+                ? `No job found with id: ${err.value}`
+                : `No job found with id: ${err.value._id}`;
 
         customError.statusCode = 404;
     }
